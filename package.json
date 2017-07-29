@@ -1,0 +1,14 @@
+{
+  "name": "chat",
+  "version": "0.0.1",
+  "description": "node server for the chat app",
+  "author": "cc",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "method-override": "^2.3.9",
+    "mongodb": "^2.2.29",
+    "mongoose": "4.5.10",
+    "socket.io": "^2.0.3"
+  }
+}
