@@ -7,7 +7,8 @@ const methodOverride = require('method-override');
 const serveStatic = require('serve-static');
 var path = require('path');
 const User = require('./models/userModel');
-
+const Avatar = require('./models/avatarModel');
+const avatarSrc = '127.0.0.1:3000/assets/avatar/';
 // 利用mongoose连接到数据库
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/userdb');
@@ -30,13 +31,12 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.urlencoded({
-  extended: true
-}))
+    extended: true
+  }))
   .use(methodOverride());
 app.use(serveStatic(path.join(__dirname, '/public')));
 
 app.get('/', (req, res) => {
-  console.log('run to here');
   res.redirect('/index.html');
 });
 
@@ -132,7 +132,18 @@ io.on('connection', (socket) => {
       }
     });
   });
-
+  // 获取用户头像
+  socket.on('fetchAvatar', (user) => {
+    User.find({
+      username: user.username
+    }, (err, user) => {
+      if (err) {
+        console.log(err);
+      } else {
+        socket.emit('provAvatar', user[0].avatar)
+      }
+    })
+  })
   socket.on('iamOnline', (user) => {
     // 用户上线广播给其他用户
     socket.broadcast.emit('someoneOnline', user);
@@ -176,12 +187,15 @@ io.on('connection', (socket) => {
   socket.on('fetchOtherInformation', (username) => {
     User.find({
       username: username
-    }, (err, userInfo) => {
+    }, (err, user) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(userInfo);
-        socket.emit('provOtherInformation', userInfo[0].information);
+        let data = {
+          avatar: user[0].avatar,
+          information: user[0].information
+        };
+        socket.emit('provOtherInformation', data);
       }
     });
   });
@@ -224,6 +238,32 @@ io.on('connection', (socket) => {
       }
     });
   });
+  // 获取头像列表
+  socket.on('fetchAvatarList', () => {
+    Avatar.find({}, (err, avatar) => {
+      if (err) {
+        console.log(err);
+      } else {
+        socket.emit('provAvatarList', avatar);
+      }
+    })
+  })
+  // 更新头像
+  socket.on('changeAvatar', (data) => {
+    User.update({
+      username: data.username
+    }, {
+      $set: {
+        avatar: data.avatar
+      }
+    }, (err) => {
+      if (err) {
+        console.log(err);
+      } else {
+        socket.emit('updateAvatarSuccessful', data.avatar);
+      }
+    })
+  })
 });
 
 http.listen(3000, () => {

@@ -6,6 +6,10 @@ const userModel = new Schema({
   username: String,
   password: String,
   is_online: Boolean,
+  avatar: {
+    type: String,
+    default: 'http://127.0.0.1:3000/assets/avatar/dog.png'
+  },
   information: {
     'Autograph': {
       type: String,
