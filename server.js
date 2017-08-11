@@ -8,10 +8,10 @@ const serveStatic = require('serve-static');
 var path = require('path');
 const User = require('./models/userModel');
 const Avatar = require('./models/avatarModel');
-const avatarSrc = '127.0.0.1:3000/assets/avatar/';
+const avatarSrc = '67.216.200.85:3000/assets/avatar/';
 // 利用mongoose连接到数据库
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/userdb');
+mongoose.connect('mongodb://67.216.200.85:27017/userdb');
 var db = mongoose.connection;
 
 // 设置返回消息的格式
