@@ -23,6 +23,34 @@ let output = function (status, data, info) {
   });
 };
 
+let detection = function (username, socket) {
+  let clock = 0;
+  socket.emit('detection', clock);
+  let prevcount = -10;
+  let currcount = 0;
+  let timer = setInterval(() => {
+    prevcount += 1;
+    if (prevcount === currcount) {
+      clearInterval(timer);
+      User.update({
+        username:username
+      }, {
+          $set: {is_online:false}  
+        }, (err) => { 
+          if (err) { 
+            console.log(err);
+          }
+        })
+    }
+  }, 15000)
+  socket.on('detection', (data) => {
+    currcount = data;
+    setTimeout(() => {
+      socket.emit('detection', data);
+    }, 15000);
+  })
+};
+
 app.use((req, res, next) => {
   res.header('Content-Type', 'application/x-www-form-urlencoded');
   res.header('Content-Type', 'application/json');
@@ -41,6 +69,9 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
+  socket.on('disconnect', (socket) => {
+    console.log(socket);
+  })
   // 响应登录事件
   socket.on('login', (user) => {
     User.find({
@@ -74,6 +105,7 @@ io.on('connection', (socket) => {
                 socket.emit('loginMsg', output(true, {
                   username: users[0].username
                 }, '登录成功'));
+                detection(users[0].username, socket);
               }
             });
           }

@@ -8,7 +8,7 @@ const userModel = new Schema({
   is_online: Boolean,
   avatar: {
     type: String,
-    default: 'http://127.0.0.1:3000/assets/avatar/dog.png'
+    default: 'http://67.216.200.85:3000/assets/avatar/dog.png'
   },
   information: {
     'Autograph': {
